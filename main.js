@@ -17,4 +17,5 @@ app.on('ready', () => {
 
     mainWindow.loadURL('file://' + __dirname + '/dist/index.html');
     mainWindow.on('closed', () => mainWindow = null);
+    mainWindow.setAlwaysOnTop(true);
 });
