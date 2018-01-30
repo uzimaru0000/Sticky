@@ -1,8 +1,5 @@
 const electron = require('electron');
-const app = electron.app;
-const BrowserWindow = electron.BrowserWindow;
-const globalMenu = electron.Menu;
-const ipcMain = electron.ipcMain;
+const {app, BrowserWindow, Menu, ipcMain} = electron;
 
 let mainWindow = null;
 
@@ -48,7 +45,7 @@ app.on('window-all-closed', () => {
 
 app.on('ready', () => {
     createNewWindow();
-    globalMenu.setApplicationMenu(globalMenu.buildFromTemplate(menuTemplate));
+    Menu.setApplicationMenu(Menu.buildFromTemplate(menuTemplate));
 });
 
 const createNewWindow = () => {
@@ -61,7 +58,16 @@ const createNewWindow = () => {
     });
 
     if (bounds !== undefined) {
-        window.setPosition(bounds.x, bounds.y + bounds.height);
+        const screenSize = electron.screen.getPrimaryDisplay().size;
+        if (bounds.y + bounds.height + 255 >= screenSize.height) {
+            if (bounds.x + bounds.width + 255 >= screenSize.width) {
+                window.setPosition(0, 0);
+            } else {
+                window.setPosition(bounds.x + bounds.width, 0);
+            }
+        } else {
+            window.setPosition(bounds.x, bounds.y + bounds.height);
+        }
     }
 
     window.loadURL('file://' + __dirname + '/dist/index.html');
