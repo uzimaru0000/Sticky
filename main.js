@@ -2,6 +2,7 @@ const electron = require('electron');
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 const globalMenu = electron.Menu;
+const ipcMain = electron.ipcMain;
 
 let mainWindow = null;
 
@@ -33,8 +34,7 @@ const menuTemplate = [
                 label: 'New Window',
                 accelerator: 'CmdOrCtrl+N',
                 click: () => {
-                    const bounds = mainWindow.getBounds();
-                    createNewWindow(bounds);
+                    createNewWindow();
                 }
             }
         ]
@@ -51,7 +51,8 @@ app.on('ready', () => {
     globalMenu.setApplicationMenu(globalMenu.buildFromTemplate(menuTemplate));
 });
 
-const createNewWindow = (bounds) => {
+const createNewWindow = () => {
+    const bounds = mainWindow ? mainWindow.getBounds() : undefined;
     const window = new BrowserWindow({
         width: 255,
         height: 255,
@@ -71,3 +72,5 @@ const createNewWindow = (bounds) => {
 
     return window;
 };
+
+ipcMain.on('createNewWindow', (ev, msg) => createNewWindow());

@@ -24,6 +24,7 @@ type Msg
     | Focus
     | Blur
     | Resize Size
+    | CreateNewWindow
 
 
 type alias Model =
@@ -59,7 +60,7 @@ view model =
                       )
                     ]
                 ]
-                []
+                [ div [ class "btn", onClick CreateNewWindow ] [] ]
             , textarea
                 [ id "inputArea"
                 , class <|
@@ -100,3 +101,6 @@ update msg model =
 
         Resize size ->
             { model | size = size } ! []
+
+        CreateNewWindow ->
+            model ! [ Port.createNewWindow ]

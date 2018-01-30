@@ -1,0 +1,48 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+div#titleBar {
+    display: flex;
+    -webkit-app-region: drag;
+    height: 24px;
+}
+
+div.btn {
+    margin: 4px 4px 4px auto;
+    width: 16px;
+    height: 16px;
+    background: rgb(0, 140, 255);
+    border-radius: 25%;
+}
+
+div.btn:hover {
+    background: rgb(0, 70, 128);
+}
+
+div#md {
+    box-sizing: border-box;
+    margin: 0;
+    width: 100%;
+    background: #eee;
+    color: #3e3e3e;
+    padding: 10px;
+}
+
+textarea#inputArea {
+    box-sizing: border-box;
+    margin: 0;
+    width: 100%;
+    background: #3e3e3e;
+    color: #eee;
+    font-size: 24px;
+    padding: 10px;
+    resize: none;
+    outline: 0;
+    border: none;
+}
+
+.hide {
+    display: none;
+}

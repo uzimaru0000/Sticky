@@ -1,3 +1,4 @@
+module.exports =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -75,8 +76,11 @@ module.exports = __webpack_require__(1);
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(2);
+__webpack_require__(3);
 
-const elm = __webpack_require__(3);
+const {ipcRenderer} = __webpack_require__(4);
+
+const elm = __webpack_require__(5);
 const mount = document.getElementById('mount');
 const app = elm.Main.embed(mount);
 
@@ -84,6 +88,8 @@ app.ports.focus_.subscribe(x => {
     const textarea = document.getElementById('inputArea');
     setTimeout(x => textarea.focus(), 1);
 });
+
+app.ports.createNewWindow_.subscribe(() => ipcRenderer.send('createNewWindow'));
 
 /***/ }),
 /* 2 */
@@ -93,6 +99,18 @@ module.exports = __webpack_require__.p + "index.html";
 
 /***/ }),
 /* 3 */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports) {
+
+module.exports = require("electron");
+
+/***/ }),
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {var __WEBPACK_AMD_DEFINE_RESULT__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;
@@ -9229,6 +9247,13 @@ var _user$project$Port$focus_ = _elm_lang$core$Native_Platform.outgoingPort(
 	});
 var _user$project$Port$focus = _user$project$Port$focus_(
 	{ctor: '_Tuple0'});
+var _user$project$Port$createNewWindow_ = _elm_lang$core$Native_Platform.outgoingPort(
+	'createNewWindow_',
+	function (v) {
+		return null;
+	});
+var _user$project$Port$createNewWindow = _user$project$Port$createNewWindow_(
+	{ctor: '_Tuple0'});
 
 var _user$project$Main$update = F2(
 	function (msg, model) {
@@ -9259,13 +9284,22 @@ var _user$project$Main$update = F2(
 						model,
 						{planeText: _p0._0}),
 					{ctor: '[]'});
-			default:
+			case 'Resize':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
 						{size: _p0._0}),
 					{ctor: '[]'});
+			default:
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					{
+						ctor: '::',
+						_0: _user$project$Port$createNewWindow,
+						_1: {ctor: '[]'}
+					});
 		}
 	});
 var _user$project$Main$init = {
@@ -9277,6 +9311,7 @@ var _user$project$Main$Model = F3(
 	function (a, b, c) {
 		return {planeText: a, isFocus: b, size: c};
 	});
+var _user$project$Main$CreateNewWindow = {ctor: 'CreateNewWindow'};
 var _user$project$Main$Resize = function (a) {
 	return {ctor: 'Resize', _0: a};
 };
@@ -9312,7 +9347,22 @@ var _user$project$Main$view = function (model) {
 						_1: {ctor: '[]'}
 					}
 				},
-				{ctor: '[]'}),
+				{
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('btn'),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$CreateNewWindow),
+								_1: {ctor: '[]'}
+							}
+						},
+						{ctor: '[]'}),
+					_1: {ctor: '[]'}
+				}),
 			_1: {
 				ctor: '::',
 				_0: A2(
@@ -9830,10 +9880,10 @@ for (var publicModule in Elm)
 }).call(this);
 
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)))
 
 /***/ }),
-/* 4 */
+/* 6 */
 /***/ (function(module, exports) {
 
 var g;
