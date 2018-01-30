@@ -8,6 +8,11 @@ const menuTemplate = [
         label: 'Sticky',
         submenu: [
             {
+                label: 'config',
+                accelerator: 'CmdOrCtrl+,',
+                click: () => createConfigWindow()
+            },
+            {
                 label: 'Hide',
                 accelerator: 'CmdOrCtrl+H',
                 role: 'hide'
@@ -30,16 +35,12 @@ const menuTemplate = [
             {
                 label: 'New Window',
                 accelerator: 'CmdOrCtrl+N',
-                click: () => {
-                    createNewWindow();
-                }
+                click: () => createNewWindow()
             },
             {
                 label: 'Save',
                 accelerator: 'CmdOrCtrl+S',
-                click: () => {
-                    mainWindow.webContents.send('save');
-                }
+                click: () => mainWindow.webContents.send('save')
             }
         ]
     }
@@ -82,6 +83,18 @@ const createNewWindow = () => {
 
     window.on('focus', () => mainWindow = window);
     mainWindow = window;
+
+    return window;
+};
+
+const createConfigWindow = () => {
+    const window = new BrowserWindow({
+        width: 512,
+        height: 256
+    });
+
+    window.loadURL('file://' + __dirname + '/dist/config.html');
+    window.setAlwaysOnTop(true);
 
     return window;
 };
