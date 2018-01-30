@@ -15,7 +15,7 @@ main =
         { init = init ! [ Task.perform Resize Window.size ]
         , update = update
         , view = view
-        , subscriptions = always <| Sub.batch [ resizes Resize ]
+        , subscriptions = always <| Sub.batch [ resizes Resize, Port.saveHook SaveHook ]
         }
 
 
@@ -25,6 +25,7 @@ type Msg
     | Blur
     | Resize Size
     | CreateNewWindow
+    | SaveHook String
 
 
 type alias Model =
@@ -104,3 +105,6 @@ update msg model =
 
         CreateNewWindow ->
             model ! [ Port.createNewWindow ]
+
+        SaveHook path ->
+            model ! [ Port.save { path = path, content = model.planeText } ]

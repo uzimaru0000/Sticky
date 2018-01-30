@@ -78,9 +78,10 @@ module.exports = __webpack_require__(1);
 __webpack_require__(2);
 __webpack_require__(3);
 
-const {ipcRenderer} = __webpack_require__(4);
+const {ipcRenderer, remote} = __webpack_require__(4);
+const fs = __webpack_require__(5);
 
-const elm = __webpack_require__(5);
+const elm = __webpack_require__(6);
 const mount = document.getElementById('mount');
 const app = elm.Main.embed(mount);
 
@@ -90,6 +91,24 @@ app.ports.focus_.subscribe(x => {
 });
 
 app.ports.createNewWindow_.subscribe(() => ipcRenderer.send('createNewWindow'));
+app.ports.save.subscribe(args => {
+    fs.writeFile(args.path, args.content, (err) => {
+        if (err) remote.dialog.showErrorBox('Cannot save file: ' + fileName, err);
+    });
+});
+
+ipcRenderer.on('save', () => {
+    remote.dialog.showSaveDialog(null, {
+        title: 'save',
+        defaultPath: '.',
+        filters: [
+            {name: 'MarkDown', extensions: ['md']}
+        ]
+    }, (fileName) => {
+        if (fileName === undefined) return;
+        app.ports.saveHook.send(fileName);
+    })
+});
 
 /***/ }),
 /* 2 */
@@ -111,6 +130,12 @@ module.exports = require("electron");
 
 /***/ }),
 /* 5 */
+/***/ (function(module, exports) {
+
+module.exports = require("fs");
+
+/***/ }),
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {var __WEBPACK_AMD_DEFINE_RESULT__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;
@@ -9254,6 +9279,16 @@ var _user$project$Port$createNewWindow_ = _elm_lang$core$Native_Platform.outgoin
 	});
 var _user$project$Port$createNewWindow = _user$project$Port$createNewWindow_(
 	{ctor: '_Tuple0'});
+var _user$project$Port$save = _elm_lang$core$Native_Platform.outgoingPort(
+	'save',
+	function (v) {
+		return {path: v.path, content: v.content};
+	});
+var _user$project$Port$saveHook = _elm_lang$core$Native_Platform.incomingPort('saveHook', _elm_lang$core$Json_Decode$string);
+var _user$project$Port$PortData = F2(
+	function (a, b) {
+		return {path: a, content: b};
+	});
 
 var _user$project$Main$update = F2(
 	function (msg, model) {
@@ -9291,13 +9326,23 @@ var _user$project$Main$update = F2(
 						model,
 						{size: _p0._0}),
 					{ctor: '[]'});
-			default:
+			case 'CreateNewWindow':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					model,
 					{
 						ctor: '::',
 						_0: _user$project$Port$createNewWindow,
+						_1: {ctor: '[]'}
+					});
+			default:
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					{
+						ctor: '::',
+						_0: _user$project$Port$save(
+							{path: _p0._0, content: model.planeText}),
 						_1: {ctor: '[]'}
 					});
 		}
@@ -9311,6 +9356,9 @@ var _user$project$Main$Model = F3(
 	function (a, b, c) {
 		return {planeText: a, isFocus: b, size: c};
 	});
+var _user$project$Main$SaveHook = function (a) {
+	return {ctor: 'SaveHook', _0: a};
+};
 var _user$project$Main$CreateNewWindow = {ctor: 'CreateNewWindow'};
 var _user$project$Main$Resize = function (a) {
 	return {ctor: 'Resize', _0: a};
@@ -9459,7 +9507,11 @@ var _user$project$Main$main = _elm_lang$html$Html$program(
 				{
 					ctor: '::',
 					_0: _elm_lang$window$Window$resizes(_user$project$Main$Resize),
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: _user$project$Port$saveHook(_user$project$Main$SaveHook),
+						_1: {ctor: '[]'}
+					}
 				}))
 	})();
 
@@ -9880,10 +9932,10 @@ for (var publicModule in Elm)
 }).call(this);
 
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)))
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports) {
 
 var g;

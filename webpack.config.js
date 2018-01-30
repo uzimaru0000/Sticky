@@ -50,7 +50,8 @@ module.exports = {
         new ExtractTextPlugin('style.css')
     ],
     externals: [
-        'electron'
+        'electron',
+        'fs'
     ],
     devServer: {
         inline: true,

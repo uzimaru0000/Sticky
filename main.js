@@ -33,6 +33,13 @@ const menuTemplate = [
                 click: () => {
                     createNewWindow();
                 }
+            },
+            {
+                label: 'Save',
+                accelerator: 'CmdOrCtrl+S',
+                click: () => {
+                    mainWindow.webContents.send('save');
+                }
             }
         ]
     }
