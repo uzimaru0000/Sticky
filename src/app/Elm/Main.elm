@@ -9,6 +9,11 @@ import Task
 import Port
 
 
+titleBarHeight : Int
+titleBarHeight =
+    24
+
+
 main : Program Never Model Msg
 main =
     program
@@ -25,6 +30,7 @@ type Msg
     | Blur
     | Resize Size
     | SaveHook String
+    | Minimum
     | Close
 
 
@@ -32,6 +38,8 @@ type alias Model =
     { planeText : String
     , title : Maybe String
     , isFocus : Bool
+    , isMinimum : Bool
+    , latestSize : Size
     , size : Size
     }
 
@@ -41,63 +49,76 @@ init =
     { planeText = ""
     , title = Nothing
     , isFocus = False
+    , isMinimum = False
+    , latestSize = Size 0 0
     , size = Size 0 0
     }
 
 
 view : Model -> Html Msg
 view model =
-    let
-        windowHeight =
-            model.size.height - 24
-    in
-        div []
-            [ div
-                [ id "titleBar"
-                , style
-                    [ ( "background-color"
-                      , if model.isFocus then
-                            "#3e3e3e"
-                        else
-                            "#eee"
-                      )
-                    ]
-                ]
-                [ div [ class "btn ", onClick Close ] []
-                , div
-                    [ id "title"
-                    , class <|
-                        if model.isFocus then
-                            "focused"
-                        else
-                            ""
-                    ]
-                    [ text <| Maybe.withDefault "" model.title ]
-                ]
-            , textarea
-                [ id "inputArea"
-                , class <|
-                    if not model.isFocus then
-                        "hide"
+    div []
+        [ div
+            [ id "titleBar"
+            , style
+                [ ( "background-color"
+                  , if model.isFocus then
+                        "#3e3e3e"
                     else
-                        ""
-                , style [ ( "height", (toString windowHeight) ++ "px" ) ]
-                , onBlur Blur
-                , onInput Input
+                        "#eee"
+                  )
                 ]
-                []
-            , MD.toHtml
-                [ id "md"
+            , onDoubleClick Minimum
+            ]
+            [ div [ class "btn ", onClick Close ] []
+            , div
+                [ id "title"
                 , class <|
                     if model.isFocus then
-                        "hide"
+                        "focused"
                     else
                         ""
-                , onClick Focus
-                , style [ ( "height", (toString windowHeight) ++ "px" ) ]
                 ]
-                model.planeText
+                [ text <| Maybe.withDefault "" model.title ]
             ]
+        , editArea model
+        ]
+
+
+editArea : Model -> Html Msg
+editArea model =
+    let
+        windowHeight =
+            model.size.height - titleBarHeight
+    in
+        if not model.isMinimum then
+            div []
+                [ textarea
+                    [ id "inputArea"
+                    , class <|
+                        if not model.isFocus then
+                            "hide"
+                        else
+                            ""
+                    , style [ ( "height", (toString windowHeight) ++ "px" ) ]
+                    , onBlur Blur
+                    , onInput Input
+                    ]
+                    []
+                , MD.toHtml
+                    [ id "md"
+                    , class <|
+                        if model.isFocus then
+                            "hide"
+                        else
+                            ""
+                    , onClick Focus
+                    , style [ ( "height", (toString windowHeight) ++ "px" ) ]
+                    ]
+                    model.planeText
+                ]
+        else
+            text ""
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -117,6 +138,15 @@ update msg model =
 
         SaveHook path ->
             model ! [ Port.save { path = path, content = model.planeText } ]
+
+        Minimum ->
+            { model | isMinimum = not model.isMinimum, latestSize = model.size }
+                ! [ Port.changeWindowSize <|
+                        if model.isMinimum then
+                            model.latestSize
+                        else
+                            { width = model.size.width, height = titleBarHeight }
+                  ]
 
         Close ->
             model ! [ Port.close ]

@@ -105,6 +105,8 @@ ipcRenderer.on('save', () => {
 
 app.ports.close_.subscribe(() => ipcRenderer.send('close'));
 
+app.ports.changeWindowSize.subscribe((size) => ipcRenderer.send('changeWindowSize', size));
+
 /***/ }),
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -9274,12 +9276,6 @@ var _user$project$Port$createNewWindow_ = _elm_lang$core$Native_Platform.outgoin
 	});
 var _user$project$Port$createNewWindow = _user$project$Port$createNewWindow_(
 	{ctor: '_Tuple0'});
-var _user$project$Port$save = _elm_lang$core$Native_Platform.outgoingPort(
-	'save',
-	function (v) {
-		return {path: v.path, content: v.content};
-	});
-var _user$project$Port$saveHook = _elm_lang$core$Native_Platform.incomingPort('saveHook', _elm_lang$core$Json_Decode$string);
 var _user$project$Port$close_ = _elm_lang$core$Native_Platform.outgoingPort(
 	'close_',
 	function (v) {
@@ -9287,6 +9283,17 @@ var _user$project$Port$close_ = _elm_lang$core$Native_Platform.outgoingPort(
 	});
 var _user$project$Port$close = _user$project$Port$close_(
 	{ctor: '_Tuple0'});
+var _user$project$Port$save = _elm_lang$core$Native_Platform.outgoingPort(
+	'save',
+	function (v) {
+		return {path: v.path, content: v.content};
+	});
+var _user$project$Port$changeWindowSize = _elm_lang$core$Native_Platform.outgoingPort(
+	'changeWindowSize',
+	function (v) {
+		return {width: v.width, height: v.height};
+	});
+var _user$project$Port$saveHook = _elm_lang$core$Native_Platform.incomingPort('saveHook', _elm_lang$core$Json_Decode$string);
 var _user$project$Port$PortData = F2(
 	function (a, b) {
 		return {path: a, content: b};
@@ -9296,6 +9303,15 @@ var _user$project$Main$getTitle = function (str) {
 	return _elm_lang$core$List$head(
 		A2(_elm_lang$core$String$split, '\n', str));
 };
+var _user$project$Main$init = {
+	planeText: '',
+	title: _elm_lang$core$Maybe$Nothing,
+	isFocus: false,
+	isMinimum: false,
+	latestSize: A2(_elm_lang$window$Window$Size, 0, 0),
+	size: A2(_elm_lang$window$Window$Size, 0, 0)
+};
+var _user$project$Main$titleBarHeight = 24;
 var _user$project$Main$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
@@ -9346,6 +9362,18 @@ var _user$project$Main$update = F2(
 							{path: _p0._0, content: model.planeText}),
 						_1: {ctor: '[]'}
 					});
+			case 'Minimum':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{isMinimum: !model.isMinimum, latestSize: model.size}),
+					{
+						ctor: '::',
+						_0: _user$project$Port$changeWindowSize(
+							model.isMinimum ? model.latestSize : {width: model.size.width, height: _user$project$Main$titleBarHeight}),
+						_1: {ctor: '[]'}
+					});
 			default:
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -9357,17 +9385,12 @@ var _user$project$Main$update = F2(
 					});
 		}
 	});
-var _user$project$Main$init = {
-	planeText: '',
-	title: _elm_lang$core$Maybe$Nothing,
-	isFocus: false,
-	size: A2(_elm_lang$window$Window$Size, 0, 0)
-};
-var _user$project$Main$Model = F4(
-	function (a, b, c, d) {
-		return {planeText: a, title: b, isFocus: c, size: d};
+var _user$project$Main$Model = F6(
+	function (a, b, c, d, e, f) {
+		return {planeText: a, title: b, isFocus: c, isMinimum: d, latestSize: e, size: f};
 	});
 var _user$project$Main$Close = {ctor: 'Close'};
+var _user$project$Main$Minimum = {ctor: 'Minimum'};
 var _user$project$Main$SaveHook = function (a) {
 	return {ctor: 'SaveHook', _0: a};
 };
@@ -9379,8 +9402,90 @@ var _user$project$Main$Focus = {ctor: 'Focus'};
 var _user$project$Main$Input = function (a) {
 	return {ctor: 'Input', _0: a};
 };
+var _user$project$Main$editArea = function (model) {
+	var windowHeight = model.size.height - _user$project$Main$titleBarHeight;
+	return (!model.isMinimum) ? A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$textarea,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$id('inputArea'),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class(
+							(!model.isFocus) ? 'hide' : ''),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$style(
+								{
+									ctor: '::',
+									_0: {
+										ctor: '_Tuple2',
+										_0: 'height',
+										_1: A2(
+											_elm_lang$core$Basics_ops['++'],
+											_elm_lang$core$Basics$toString(windowHeight),
+											'px')
+									},
+									_1: {ctor: '[]'}
+								}),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Events$onBlur(_user$project$Main$Blur),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Events$onInput(_user$project$Main$Input),
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					}
+				},
+				{ctor: '[]'}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_evancz$elm_markdown$Markdown$toHtml,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$id('md'),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class(
+								model.isFocus ? 'hide' : ''),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$Focus),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$style(
+										{
+											ctor: '::',
+											_0: {
+												ctor: '_Tuple2',
+												_0: 'height',
+												_1: A2(
+													_elm_lang$core$Basics_ops['++'],
+													_elm_lang$core$Basics$toString(windowHeight),
+													'px')
+											},
+											_1: {ctor: '[]'}
+										}),
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					},
+					model.planeText),
+				_1: {ctor: '[]'}
+			}
+		}) : _elm_lang$html$Html$text('');
+};
 var _user$project$Main$view = function (model) {
-	var windowHeight = model.size.height - 24;
 	return A2(
 		_elm_lang$html$Html$div,
 		{ctor: '[]'},
@@ -9403,7 +9508,11 @@ var _user$project$Main$view = function (model) {
 								},
 								_1: {ctor: '[]'}
 							}),
-						_1: {ctor: '[]'}
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Events$onDoubleClick(_user$project$Main$Minimum),
+							_1: {ctor: '[]'}
+						}
 					}
 				},
 				{
@@ -9445,80 +9554,8 @@ var _user$project$Main$view = function (model) {
 				}),
 			_1: {
 				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$textarea,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$id('inputArea'),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class(
-								(!model.isFocus) ? 'hide' : ''),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$style(
-									{
-										ctor: '::',
-										_0: {
-											ctor: '_Tuple2',
-											_0: 'height',
-											_1: A2(
-												_elm_lang$core$Basics_ops['++'],
-												_elm_lang$core$Basics$toString(windowHeight),
-												'px')
-										},
-										_1: {ctor: '[]'}
-									}),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$html$Html_Events$onBlur(_user$project$Main$Blur),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$html$Html_Events$onInput(_user$project$Main$Input),
-										_1: {ctor: '[]'}
-									}
-								}
-							}
-						}
-					},
-					{ctor: '[]'}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_evancz$elm_markdown$Markdown$toHtml,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$id('md'),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class(
-									model.isFocus ? 'hide' : ''),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$Focus),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$style(
-											{
-												ctor: '::',
-												_0: {
-													ctor: '_Tuple2',
-													_0: 'height',
-													_1: A2(
-														_elm_lang$core$Basics_ops['++'],
-														_elm_lang$core$Basics$toString(windowHeight),
-														'px')
-												},
-												_1: {ctor: '[]'}
-											}),
-										_1: {ctor: '[]'}
-									}
-								}
-							}
-						},
-						model.planeText),
-					_1: {ctor: '[]'}
-				}
+				_0: _user$project$Main$editArea(model),
+				_1: {ctor: '[]'}
 			}
 		});
 };

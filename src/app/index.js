@@ -34,3 +34,5 @@ ipcRenderer.on('save', () => {
 });
 
 app.ports.close_.subscribe(() => ipcRenderer.send('close'));
+
+app.ports.changeWindowSize.subscribe((size) => ipcRenderer.send('changeWindowSize', size));

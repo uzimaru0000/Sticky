@@ -102,3 +102,7 @@ ipcMain.on('createNewWindow', (ev, msg) => createNewWindow());
 ipcMain.on('close', () => {
     mainWindow.close();
 });
+
+ipcMain.on('changeWindowSize', (_, size) => {
+    mainWindow.setSize(size.width, size.height);
+})
