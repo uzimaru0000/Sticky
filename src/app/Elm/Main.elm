@@ -24,12 +24,13 @@ type Msg
     | Focus
     | Blur
     | Resize Size
-    | CreateNewWindow
     | SaveHook String
+    | Close
 
 
 type alias Model =
     { planeText : String
+    , title : Maybe String
     , isFocus : Bool
     , size : Size
     }
@@ -38,6 +39,7 @@ type alias Model =
 init : Model
 init =
     { planeText = ""
+    , title = Nothing
     , isFocus = False
     , size = Size 0 0
     }
@@ -61,7 +63,17 @@ view model =
                       )
                     ]
                 ]
-                [ div [ class "btn", onClick CreateNewWindow ] [] ]
+                [ div [ class "btn ", onClick Close ] []
+                , div
+                    [ id "title"
+                    , class <|
+                        if model.isFocus then
+                            "focused"
+                        else
+                            ""
+                    ]
+                    [ text <| Maybe.withDefault "" model.title ]
+                ]
             , textarea
                 [ id "inputArea"
                 , class <|
@@ -98,13 +110,19 @@ update msg model =
             { model | isFocus = False } ! []
 
         Input str ->
-            { model | planeText = str } ! []
+            { model | planeText = str, title = getTitle str } ! []
 
         Resize size ->
             { model | size = size } ! []
 
-        CreateNewWindow ->
-            model ! [ Port.createNewWindow ]
-
         SaveHook path ->
             model ! [ Port.save { path = path, content = model.planeText } ]
+
+        Close ->
+            model ! [ Port.close ]
+
+
+getTitle : String -> Maybe String
+getTitle str =
+    String.split "\n" str
+        |> List.head

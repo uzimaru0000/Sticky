@@ -61,8 +61,7 @@ const createNewWindow = () => {
     const window = new BrowserWindow({
         width: 255,
         height: 255,
-        frame: false,
-        titleBarStyle: 'hidden'
+        frame: false
     });
 
     if (bounds !== undefined) {
@@ -100,3 +99,6 @@ const createConfigWindow = () => {
 };
 
 ipcMain.on('createNewWindow', (ev, msg) => createNewWindow());
+ipcMain.on('close', () => {
+    mainWindow.close();
+});

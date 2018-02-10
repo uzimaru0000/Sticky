@@ -32,3 +32,5 @@ ipcRenderer.on('save', () => {
         app.ports.saveHook.send(fileName);
     })
 });
+
+app.ports.close_.subscribe(() => ipcRenderer.send('close'));

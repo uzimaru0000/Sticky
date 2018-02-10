@@ -1,4 +1,4 @@
-port module Port exposing (focus, createNewWindow, saveHook, save, PortData)
+port module Port exposing (focus, createNewWindow, saveHook, save, PortData, close)
 
 
 type alias PortData =
@@ -19,6 +19,9 @@ port save : PortData -> Cmd msg
 port saveHook : (String -> msg) -> Sub msg
 
 
+port close_ : () -> Cmd msg
+
+
 focus : Cmd msg
 focus =
     focus_ ()
@@ -27,3 +30,8 @@ focus =
 createNewWindow : Cmd msg
 createNewWindow =
     createNewWindow_ ()
+
+
+close : Cmd msg
+close =
+    close_ ()

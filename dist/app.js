@@ -103,6 +103,8 @@ ipcRenderer.on('save', () => {
     })
 });
 
+app.ports.close_.subscribe(() => ipcRenderer.send('close'));
+
 /***/ }),
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -9278,11 +9280,22 @@ var _user$project$Port$save = _elm_lang$core$Native_Platform.outgoingPort(
 		return {path: v.path, content: v.content};
 	});
 var _user$project$Port$saveHook = _elm_lang$core$Native_Platform.incomingPort('saveHook', _elm_lang$core$Json_Decode$string);
+var _user$project$Port$close_ = _elm_lang$core$Native_Platform.outgoingPort(
+	'close_',
+	function (v) {
+		return null;
+	});
+var _user$project$Port$close = _user$project$Port$close_(
+	{ctor: '_Tuple0'});
 var _user$project$Port$PortData = F2(
 	function (a, b) {
 		return {path: a, content: b};
 	});
 
+var _user$project$Main$getTitle = function (str) {
+	return _elm_lang$core$List$head(
+		A2(_elm_lang$core$String$split, '\n', str));
+};
 var _user$project$Main$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
@@ -9306,11 +9319,15 @@ var _user$project$Main$update = F2(
 						{isFocus: false}),
 					{ctor: '[]'});
 			case 'Input':
+				var _p1 = _p0._0;
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
-						{planeText: _p0._0}),
+						{
+							planeText: _p1,
+							title: _user$project$Main$getTitle(_p1)
+						}),
 					{ctor: '[]'});
 			case 'Resize':
 				return A2(
@@ -9319,16 +9336,7 @@ var _user$project$Main$update = F2(
 						model,
 						{size: _p0._0}),
 					{ctor: '[]'});
-			case 'CreateNewWindow':
-				return A2(
-					_elm_lang$core$Platform_Cmd_ops['!'],
-					model,
-					{
-						ctor: '::',
-						_0: _user$project$Port$createNewWindow,
-						_1: {ctor: '[]'}
-					});
-			default:
+			case 'SaveHook':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					model,
@@ -9338,21 +9346,31 @@ var _user$project$Main$update = F2(
 							{path: _p0._0, content: model.planeText}),
 						_1: {ctor: '[]'}
 					});
+			default:
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					{
+						ctor: '::',
+						_0: _user$project$Port$close,
+						_1: {ctor: '[]'}
+					});
 		}
 	});
 var _user$project$Main$init = {
 	planeText: '',
+	title: _elm_lang$core$Maybe$Nothing,
 	isFocus: false,
 	size: A2(_elm_lang$window$Window$Size, 0, 0)
 };
-var _user$project$Main$Model = F3(
-	function (a, b, c) {
-		return {planeText: a, isFocus: b, size: c};
+var _user$project$Main$Model = F4(
+	function (a, b, c, d) {
+		return {planeText: a, title: b, isFocus: c, size: d};
 	});
+var _user$project$Main$Close = {ctor: 'Close'};
 var _user$project$Main$SaveHook = function (a) {
 	return {ctor: 'SaveHook', _0: a};
 };
-var _user$project$Main$CreateNewWindow = {ctor: 'CreateNewWindow'};
 var _user$project$Main$Resize = function (a) {
 	return {ctor: 'Resize', _0: a};
 };
@@ -9394,15 +9412,36 @@ var _user$project$Main$view = function (model) {
 						_elm_lang$html$Html$div,
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('btn'),
+							_0: _elm_lang$html$Html_Attributes$class('btn '),
 							_1: {
 								ctor: '::',
-								_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$CreateNewWindow),
+								_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$Close),
 								_1: {ctor: '[]'}
 							}
 						},
 						{ctor: '[]'}),
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$div,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$id('title'),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$class(
+										model.isFocus ? 'focused' : ''),
+									_1: {ctor: '[]'}
+								}
+							},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text(
+									A2(_elm_lang$core$Maybe$withDefault, '', model.title)),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}
 				}),
 			_1: {
 				ctor: '::',

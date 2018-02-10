@@ -7,18 +7,24 @@ div#titleBar {
     display: flex;
     -webkit-app-region: drag;
     height: 24px;
+    align-items: center;
 }
 
 div.btn {
-    margin: 4px 4px 4px auto;
-    width: 16px;
-    height: 16px;
-    background: rgb(0, 140, 255);
+    margin: 4px;
+    width: 8px;
+    height: 8px;
+    border: 1px solid black;
     border-radius: 25%;
 }
 
+div#title {
+    margin: 0 auto;
+    text-align: center;
+}
+
 div.btn:hover {
-    background: rgb(0, 70, 128);
+    background: rgba(0, 0, 0, 0.5);
 }
 
 div#md {
@@ -45,4 +51,8 @@ textarea#inputArea {
 
 .hide {
     display: none;
+}
+
+.focused {
+    color: #eee;
 }
