@@ -8,11 +8,6 @@ const menuTemplate = [
         label: 'Sticky',
         submenu: [
             {
-                label: 'config',
-                accelerator: 'CmdOrCtrl+,',
-                click: () => createConfigWindow()
-            },
-            {
                 label: 'Hide',
                 accelerator: 'CmdOrCtrl+H',
                 role: 'hide'
@@ -86,23 +81,12 @@ const createNewWindow = () => {
     return window;
 };
 
-const createConfigWindow = () => {
-    const window = new BrowserWindow({
-        width: 512,
-        height: 256
-    });
-
-    window.loadURL('file://' + __dirname + '/dist/config.html');
-    window.setAlwaysOnTop(true);
-
-    return window;
-};
-
 ipcMain.on('createNewWindow', (ev, msg) => createNewWindow());
 ipcMain.on('close', () => {
     mainWindow.close();
 });
 
 ipcMain.on('changeWindowSize', (_, size) => {
+    mainWindow.setResizable(!mainWindow.isResizable());
     mainWindow.setSize(size.width, size.height);
 })

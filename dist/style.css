@@ -21,6 +21,7 @@ div.btn {
 div#title {
     margin: 0 auto;
     text-align: center;
+    user-select: none;
 }
 
 div.btn:hover {
