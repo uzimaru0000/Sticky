@@ -4,8 +4,7 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "buildTest": "webpack && electron ./",
-    "dev": "webpack-dev-server --hot --port 3000",
+    "dev": "webpack && electron ./",
     "build": "electron-packager . Sticky --platform=darwin --arch=x64 --electronVersion=1.6.5 --icon=./icon.icns"
   },
   "keywords": [],

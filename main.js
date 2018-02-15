@@ -2,6 +2,7 @@ const electron = require('electron');
 const {app, BrowserWindow, Menu, ipcMain} = electron;
 
 let mainWindow = null;
+let windowCount = 0;
 
 const menuTemplate = [
     {
@@ -41,14 +42,21 @@ const menuTemplate = [
     }
 ];
 
-
 app.on('window-all-closed', () => {
-    if (process.platform != 'drawin') app.quit();
+    if (process.platform != 'darwin') app.quit();
 });
 
 app.on('ready', () => {
     createNewWindow();
     Menu.setApplicationMenu(Menu.buildFromTemplate(menuTemplate));
+});
+
+app.on('activate', () => {
+    if (windowCount === 1) mainWindow.show();
+});
+
+app.on('before-quit', () => {
+    windowCount = 0;
 });
 
 const createNewWindow = () => {
@@ -58,6 +66,8 @@ const createNewWindow = () => {
         height: 255,
         frame: false
     });
+
+    windowCount++;
 
     if (bounds !== undefined) {
         const screenSize = electron.screen.getPrimaryDisplay().size;
@@ -78,15 +88,28 @@ const createNewWindow = () => {
     window.on('focus', () => mainWindow = window);
     mainWindow = window;
 
+    window.on('close', e => {
+        if (windowCount === 1) {
+            e.preventDefault();
+            mainWindow.hide();
+        } else {
+            windowCount--;
+        }
+    });
+
     return window;
 };
 
 ipcMain.on('createNewWindow', (ev, msg) => createNewWindow());
 ipcMain.on('close', () => {
-    mainWindow.close();
+    if (windowCount === 1) {
+        mainWindow.hide();
+    } else {
+        mainWindow.close();
+    }
 });
 
 ipcMain.on('changeWindowSize', (_, size) => {
     mainWindow.setResizable(!mainWindow.isResizable());
     mainWindow.setSize(size.width, size.height);
-})
+});
